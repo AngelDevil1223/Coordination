@@ -1,0 +1,244 @@
+<html> 
+
+<head>
+	<style type="text/css">
+		.map {
+			background-image: url("./map.png");
+			background-size:     cover;         
+			background-repeat:   no-repeat;
+			background-position: center center; 
+		}
+		.img {
+			width: 4000px;
+			height: 4000px;
+			position: fixed;
+			top: 0px;
+			left: 0px;
+			z-index: 0.9;
+		}
+		.edit {
+			display: inline-block;
+			width: 300px;
+			height: 800px;
+			margin-left:80%;
+			position: fixed;
+		}
+		label {
+			font-size: 50px;
+			color: red;
+		}
+		input {
+			font-size: 45px;
+			padding: 10px;
+			border-radius: 10px;
+			width: 200px;
+			font-weight: bold;
+			padding-left: 40px;
+		}
+		.btn {
+			font-size: 40px;
+			padding: 40px;
+			background-color: white;
+			border: 3px solid #eeeeee;
+			box-shadow: 5px 5px 5px #dddddd;
+			border-radius: 10px;
+		}
+		.btn:hover {
+			transform: scale3d(1.1, 1.1 ,1.1);
+		}
+		.toggle {
+			padding: 10px;
+			border-radius: 10px;
+			box-shadow: 5px 5px 5px #dddddd;
+			border: none;
+		}
+	</style>
+</head>
+
+<body onload="init()" id="body">
+<canvas id="can" class="map" width="4000" height="4000" style="position:absolute;">Below you can write:</canvas>
+<div class="edit"> 
+	<label>Current X:</label><input class="input" id="c_x" /> <br /> <br />
+	<label>Current Y:</label><input class="input" id="c_y" /> <br /> <br /> <hr /> <br />
+	<label>Goal X:</label><input class="input" id="g_x" /> <br /> <br />
+	<label>Goal Y:</label><input class="input" id="g_y" /> <br /> <br /> <br />
+	<button class="btn" id="setPos"> Mark </button><br /><br />
+	<input class="btn" type="button" value="Hide" id="toggle" /> <br /> <br />
+	<button class="btn" id="Clear"> Clear </button><br /><br />
+</div>
+</body>
+</html>
+
+<script type="text/javascript">
+	 var canvas, ctx, flag = false,
+        prevX = 0,
+        currX = 0,
+	prevY = 0,
+        currY = 0,
+        dot_flag = false;
+
+    var x = "grey",
+        y = 1;
+    
+    var body = document.getElementById('body');
+
+    var square_x = [];
+	var square_y = [];
+
+	var setPos = document.getElementById("setPos");
+
+	var save_x = [];
+	var save_y = [];
+	var save_flag = 0;
+
+	var toggle = document.getElementById("toggle");
+
+    function init() {
+    	square();
+        canvas = document.getElementById('can');
+
+        ctx = canvas.getContext("2d");
+        w = canvas.width;
+        h = canvas.height;
+
+        for(var i = 0 ; i < 4000 ; i += 12)
+        {
+        	ctx.beginPath();
+        	ctx.lineWidth = 1;
+        	ctx.moveTo(i, 0);
+        	ctx.lineTo(i, 4000)
+            ctx.strokeStyle = x;
+	        ctx.lineWidth = y;
+	        ctx.stroke();
+        }
+
+        for(var i = 0 ; i < 4000 ; i += 12)
+        {
+        	ctx.beginPath();
+        	ctx.lineWidth = 1;
+        	ctx.moveTo(0, i);
+        	ctx.lineTo(4000, i)
+            ctx.strokeStyle = x;
+	        ctx.lineWidth = y;
+	        ctx.stroke();
+        }
+
+        can.addEventListener("mousedown", function (e) {
+            findxy('down', e)
+        }, false);
+        can.addEventListener("mousemove", function (e) {
+            findxy('move', e)
+        }, false);
+    }
+ 
+    function draw() {
+        ctx.beginPath();
+
+        // ctx.moveTo(prevX, prevY);
+        // ctx.fillRect(currX , currY , 100 , 100 );
+        // ctx.lineTo(currX, currY);
+        ctx.strokeStyle = x;
+        ctx.lineWidth = y;
+        ctx.stroke();
+        ctx.closePath();
+    }
+   
+    function findxy(res, e) {
+        if (res == 'down') {
+            prevX = currX;
+            prevY = currY;
+            currX = e.clientX - canvas.getBoundingClientRect().left;
+            currY = e.clientY - canvas.getBoundingClientRect().top;
+    		var index_x = Math.floor((currX) / 12);
+    		var index_y = Math.floor((currY) / 12);
+    		currX = square_x[index_x] ;
+    		currY = square_y[index_y] ;
+    		save_x[save_flag] = currX;
+    		save_y[save_flag] = currY;
+    		save_flag = save_flag + 1;
+            flag = true;
+            dot_flag = true;
+            if (dot_flag) {
+                ctx.beginPath();
+                ctx.fillStyle = "red";
+                ctx.fillRect(currX, currY, 12, 12);
+                ctx.closePath();
+                dot_flag = false;
+            }
+        }
+        if (res == 'move') {
+            prevX = currX;
+            prevY = currY;
+            currX = e.clientX - canvas.getBoundingClientRect().left;
+            currY = e.clientY - canvas.getBoundingClientRect().top;
+    		var index_x = Math.floor((currX) / 12);
+    		var index_y = Math.floor((currY) / 12);
+    		currX = square_x[index_x] ;
+    		currY = square_y[index_y] ; 
+            document.getElementById("c_x").value = index_x - 166;
+            document.getElementById("c_y").value = index_y - 166;
+        }
+    }
+    setPos.addEventListener("click" , function() {
+    	var xx = document.getElementById("g_x").value;
+    	var yy = document.getElementById("g_y").value;
+    	ctx.beginPath();
+        ctx.fillStyle = "red";
+        xx = Number(xx) + 166;
+        yy = Number(yy) + 166;
+        save_x[save_flag] = xx;
+        save_x[save_flag] = square_x[xx];
+        save_y[save_flag] = square_y[yy];
+        save_flag = save_flag + 1;
+        ctx.fillRect(square_x[xx], square_y[yy], 12, 12);
+    })
+
+    toggle.addEventListener("click" , function() {
+    	if(toggle.value == "Hide")
+    	{
+    		toggle.value = "Show";
+    		ctx.clearRect(0, 0, 4000, 4000);
+    		init();
+
+    	}
+    	else
+    	{
+    		toggle.value = "Hide";
+    		for(var i = 0 ; i < save_flag ; i ++)
+    		{
+    			ctx.fillRect(save_x[i], save_y[i], 12, 12);
+    		}
+    	}
+    })
+
+    Clear.addEventListener("click" , function() {
+    	ctx.clearRect(0, 0, 4000, 4000);
+    	for(var j = 0 ; j <= save_flag ; j++ ) {
+    		save_x[j] = 0;
+    		save_y[j] = 0;
+    	}
+    	save_flag = 0;
+    	init();
+    })
+
+function square() {
+    var j = 0;
+    for(var i = 0 ; i <= 4000 ; i++)
+    {
+    	if(i % 12 == 0) {
+    		square_x[j] = i;
+    		j++;
+    	}
+    }
+    j = 0;
+    for(var i = 0 ; i <= 4000 ; i++)
+    {
+    	if(i % 12 == 0) {
+    		square_y[j] = i;
+    		j++;
+    	}
+    }
+}
+
+
+</script>
