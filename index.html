@@ -1,5 +1,4 @@
 <html> 
-
 <head>
 	<style type="text/css">
 		.map {
@@ -7,6 +6,7 @@
 			background-size:     cover;         
 			background-repeat:   no-repeat;
 			background-position: center center; 
+            transition: 100ms;
 		}
 		.img {
 			width: 4000px;
@@ -18,53 +18,98 @@
 		}
 		.edit {
 			display: inline-block;
-			width: 300px;
+			width: 400px;
 			height: 800px;
 			margin-left:80%;
 			position: fixed;
+            margin-top: 30px;
 		}
 		label {
-			font-size: 50px;
+			font-size: 40px;
 			color: red;
 		}
 		input {
-			font-size: 45px;
+			font-size: 35px;
 			padding: 10px;
 			border-radius: 10px;
 			width: 200px;
 			font-weight: bold;
 			padding-left: 40px;
+            margin-left: 20px;
 		}
-		.btn {
-			font-size: 40px;
-			padding: 40px;
+		.btn , .btn1 {
+			font-size: 30px;
+			padding: 20px;
 			background-color: white;
 			border: 3px solid #eeeeee;
 			box-shadow: 5px 5px 5px #dddddd;
 			border-radius: 10px;
+            margin-left: 20px;
 		}
 		.btn:hover {
 			transform: scale3d(1.1, 1.1 ,1.1);
 		}
 		.toggle {
+            display: inline-block;
 			padding: 10px;
 			border-radius: 10px;
 			box-shadow: 5px 5px 5px #dddddd;
 			border: none;
 		}
+        .listBox {
+            width: 400px;
+            height: 630px;
+            background-color: #ffffff;
+            margin-left: 20px;
+            display: none;
+            padding-bottom: 20px;
+            box-shadow: 5px 5px 5px #777777;
+        }
+    
+        .viewlist {
+            margin: auto;
+            padding-top: 30px;
+            width: 90%;
+            height: 500px;
+            overflow: auto;
+        }
+    
+        select {
+            width: 350px;
+            height: 470px;
+        }
+        #removepos {
+            margin-left: 10px;
+            background-color: #eeeeee;
+        }
+        
 	</style>
 </head>
 
 <body onload="init()" id="body">
-<canvas id="can" class="map" width="4000" height="4000" style="position:absolute;">Below you can write:</canvas>
+<div class="can_div">
+    <canvas id="can" class="map" width="4000" height="4000" style="position:absolute;">Below you can write:</canvas>
+</div>
 <div class="edit"> 
 	<label>Current X:</label><input class="input" id="c_x" /> <br /> <br />
 	<label>Current Y:</label><input class="input" id="c_y" /> <br /> <br /> <hr /> <br />
 	<label>Goal X:</label><input class="input" id="g_x" /> <br /> <br />
 	<label>Goal Y:</label><input class="input" id="g_y" /> <br /> <br /> <br />
-	<button class="btn" id="setPos"> Mark </button><br /><br />
-	<input class="btn" type="button" value="Hide" id="toggle" /> <br /> <br />
-	<button class="btn" id="Clear"> Clear </button><br /><br />
+	<button class="btn" id="setPos"> Mark </button>
+    <button class="btn" id="zoomIn"> + </button>
+    <button class="btn" id="zoomOut"> - </button> <br /><br />
+	<button class="btn" id="Clear"> Select </button> <br /><br />
+    <div class="listBox" id="listBox">
+        <div class="viewlist" id="viewlist">
+            <select multiple id="listParent">
+                
+            </select>
+        </div>
+        <div class="Select">
+            <button class="btn1" id="removepos" disabled>Remove</button>
+            <input class="btn1" type="button" value="Hide" id="toggle" disabled/> <br /> <br />
+        </div>
+    </div>
 </div>
 </body>
 </html>
@@ -90,8 +135,14 @@
 	var save_x = [];
 	var save_y = [];
 	var save_flag = 0;
+    var clickflag = false;
 
 	var toggle = document.getElementById("toggle");
+var clieckedx = 0;
+var clieckedy = 0;
+var temptop = 0,
+    templeft = 0;
+var drawflag = 1;
 
     function init() {
     	square();
@@ -124,13 +175,66 @@
         }
 
         can.addEventListener("mousedown", function (e) {
-            findxy('down', e)
+            drawflag = 1;
+            console.log(clickflag);
+            // findxy('down', e)
         }, false);
+        can.addEventListener("mouseup", function (e) {
+            StopFlag();
+           
+
+               if(drawflag == 1) 
+                    findxy('down', e);
+            
+            // findxy('down', e)
+        }, false);
+        body.addEventListener("mouseup" , function(e) {
+
+            clickflag = false;
+            var topstring = can.style.top;
+            var leftstring = can.style.left;
+            
+            temptop = Number(topstring.slice(0,topstring.indexOf("px")));
+            templeft = Number(leftstring.slice(0,leftstring.indexOf("px")));
+            // console.log(temptop + "<= temptop : "+ "templeft =>" + templeft);
+        });
+        body.addEventListener("mousedown" , function(e) {
+            clieckedx = e.clientX;
+            clieckedy = e.clientY;
+            clickflag = true;
+            console.log(clickflag);
+        });
         can.addEventListener("mousemove", function (e) {
             findxy('move', e)
         }, false);
+        can.addEventListener("mousemove", function(e) {
+            drawflag = 0;
+            if(clickflag) {
+                var b = [];
+                getCursorPosition(can , e);
+
+                can.style.top = temptop + (e.clientY - clieckedy) / zoom;
+                can.style.left = templeft + (e.clientX - clieckedx) / zoom;
+
+                console.log("f x:" + clieckedx + "f y:" + clieckedy + "c x:" + e.clientX + "c y:" + e.clientY);
+            }
+        });
     }
  
+ function getCursorPosition(canvas, event) {
+    const rect = canvas.getBoundingClientRect();
+
+    const x = event.clientX - rect.left
+    const y = event.clientY - rect.top
+    var a = [];
+    a[0] = x;
+    a[1] = y;
+    // can.style.top = y;
+    // can.style.left = x;
+
+    console.log("current x : " + x/zoom + " " + "current y:" + y/zoom );
+  }
+
     function draw() {
         ctx.beginPath();
 
@@ -151,19 +255,28 @@
             currY = e.clientY - canvas.getBoundingClientRect().top;
     		var index_x = Math.floor((currX) / 12);
     		var index_y = Math.floor((currY) / 12);
-    		currX = square_x[index_x] ;
-    		currY = square_y[index_y] ;
-    		save_x[save_flag] = currX;
-    		save_y[save_flag] = currY;
+    		// currX = square_x[index_x] ;
+    		// currY = square_y[index_y] ;
+    		
+     
+            index_x = Math.floor(index_x / zoom );
+            index_y = Math.floor(index_y / zoom );
+            currX = square_x[index_x];
+            currY = square_y[index_y];
+            save_x[save_flag] = currX;
+            save_y[save_flag] = currY;
+
     		save_flag = save_flag + 1;
             flag = true;
             dot_flag = true;
             if (dot_flag) {
                 ctx.beginPath();
                 ctx.fillStyle = "red";
-                ctx.fillRect(currX, currY, 12, 12);
+                // ctx.fillRect(currX , currY , 12, 12);
+                ctx.fillRect(currX , currY , 12,  12);
                 ctx.closePath();
                 dot_flag = false;
+                drawList();
             }
         }
         if (res == 'move') {
@@ -175,8 +288,8 @@
     		var index_y = Math.floor((currY) / 12);
     		currX = square_x[index_x] ;
     		currY = square_y[index_y] ; 
-            document.getElementById("c_x").value = index_x - 166;
-            document.getElementById("c_y").value = index_y - 166;
+            document.getElementById("c_x").value = Math.floor(index_x/zoom) - 166;
+            document.getElementById("c_y").value = Math.floor(index_y/zoom) - 166;
         }
     }
     setPos.addEventListener("click" , function() {
@@ -191,35 +304,39 @@
         save_y[save_flag] = square_y[yy];
         save_flag = save_flag + 1;
         ctx.fillRect(square_x[xx], square_y[yy], 12, 12);
+        listParent.innerHTML = "";
+        drawList();
     })
 
     toggle.addEventListener("click" , function() {
     	if(toggle.value == "Hide")
     	{
     		toggle.value = "Show";
-    		ctx.clearRect(0, 0, 4000, 4000);
-    		init();
+    		var x_pos;
+            var y_pos;
+            for(var j = 0 ; j < selected.length ; j ++)
+            {
+                x_pos = Number(selected[j].slice(0, selected[j].indexOf(','))) * 12 + 1992;
+                y_pos = Number(selected[j].slice(selected[j].indexOf(',') + 1)) * 12 + 1992;
+                ctx.clearRect(x_pos, y_pos , 12, 12);
+            }
 
     	}
     	else
     	{
     		toggle.value = "Hide";
-    		for(var i = 0 ; i < save_flag ; i ++)
-    		{
-    			ctx.fillRect(save_x[i], save_y[i], 12, 12);
-    		}
+    	    var x_pos;
+            var y_pos;
+            for(var j = 0 ; j < selected.length ; j ++)
+            {
+                ctx.fillStyle = "red";
+                x_pos = Number(selected[j].slice(0, selected[j].indexOf(','))) * 12 + 1992;
+                y_pos = Number(selected[j].slice(selected[j].indexOf(',') + 1)) * 12 + 1992;
+                ctx.fillRect(x_pos, y_pos , 12, 12);
+            }
     	}
     })
 
-    Clear.addEventListener("click" , function() {
-    	ctx.clearRect(0, 0, 4000, 4000);
-    	for(var j = 0 ; j <= save_flag ; j++ ) {
-    		save_x[j] = 0;
-    		save_y[j] = 0;
-    	}
-    	save_flag = 0;
-    	init();
-    })
 
 function square() {
     var j = 0;
@@ -240,5 +357,226 @@ function square() {
     }
 }
 
+// third update
+var listBox = document.getElementById("listBox");
+var listParent = document.getElementById("listParent");
+var Selectflag = true;
+var removebtn = document.getElementById("removepos");
+var selected = [];
+
+listParent.addEventListener("click", function() {
+
+
+    for(var i = 0 ; i < save_flag ; i ++)
+    {
+        ctx.fillStyle = "red";
+        ctx.fillRect(save_x[i], save_y[i], 12, 12);
+    }
+    toggle.disabled = false;
+    removebtn.disabled = false;
+    selected = [...listParent.options]
+                    .filter(option => option.selected)
+                    .map(option => option.value);
+    
+    for(var j = 0 ; j < selected.length ; j ++)
+    {
+        ctx.beginPath();
+        ctx.fillStyle = "yellow";
+        var x_pos = Number(selected[j].slice(0, selected[j].indexOf(','))) * 12 + 1992;
+        var y_pos = Number(selected[j].slice(selected[j].indexOf(',') + 1)) * 12 + 1992;
+        ctx.fillRect(x_pos , y_pos , 12 , 12);
+        // ctx.fillRect()
+    }
+})
+    removepos.addEventListener("click" , function() {
+        toggle.disabled = true;
+        var x_pos;
+        var y_pos;
+        for(var j = 0 ; j < selected.length ; j ++)
+        {
+            x_pos = Number(selected[j].slice(0, selected[j].indexOf(','))) * 12 + 1992;
+            y_pos = Number(selected[j].slice(selected[j].indexOf(',') + 1)) * 12 + 1992;
+            ctx.clearRect(x_pos, y_pos , 12, 12);
+        }
+        var temp_flag = save_flag;
+
+        for( var i = 0; i < save_flag ; i++){ 
+            for( var j = 0 ; j < selected.length ; j++)
+            {
+                x_pos = Number(selected[j].slice(0, selected[j].indexOf(','))) * 12 + 1992;
+                y_pos = Number(selected[j].slice(selected[j].indexOf(',') + 1)) * 12 + 1992;
+                if ( save_x[i] === x_pos && save_y[i] === y_pos) { 
+                    save_x.splice(i, 1); 
+                    save_y.splice(i , 1);
+                    i--; 
+                    temp_flag = temp_flag - 1;
+                }
+            }
+        }
+
+        save_flag = temp_flag;
+
+        listParent.innerHTML = "";
+        drawList();
+        ctx.clearRect(0, 0 , 4000, 4000);
+        init();
+        for(var k = 0 ; k < save_flag ; k ++)
+        {
+            ctx.fillStyle = "red";
+            ctx.fillRect(save_x[k] , save_y[k] , 12 , 12);
+        }
+        console.log("save_flag:" + save_flag + "save_x: " + save_x + "save_y :" + save_y);
+    });
+    // when clear btn click
+    var clearflag = true;
+    Clear.addEventListener("click" , function() {
+        if(clearflag) {
+            listBox.setAttribute("style","display: none;");
+            removebtn.disabled = true;
+            toggle.disabled = true;
+            for(var i = 0 ; i < save_flag ; i ++)
+            {
+                ctx.fillStyle = "red";
+                ctx.fillRect(save_x[i], save_y[i], 12, 12);
+            }
+            clearflag = !clearflag;    
+        }
+        else {
+            listBox.setAttribute("style","display: block;");
+            var optionsHTML = [];
+            clearflag = !clearflag;
+        }
+        drawList();
+    })
+
+function drawList() {
+
+    listParent.innerHTML = "";
+    for (var j = 0 ; j < save_flag ; j += 1) {
+        if(save_x[j + 1] == save_x[j] && save_y[j+1] == save_y[j])
+            continue;
+        listParent.innerHTML += "<option style=\"font-size: 40px; padding-left: 40px;+\" id="+j+">"+ (Math.floor((save_x[j]-1992)/12)) +" , "+(Math.floor((save_y[j]-1992)/12))+"</option>";
+    }
+} 
+
+
+var zoom = 1;
+var zoomStep = 0.3;
+
+document.getElementById("zoomIn").addEventListener("click", function() {
+    if(zoom > 2.4)
+    {
+        return;
+    }
+  zoom += zoomStep;
+  document.getElementById("can").style.transform = "scale(" + zoom + ")";
+  StopFlag();
+  // document.getElementById("can").style.transform = "translate( 0 )";
+});
+
+function StopFlag() {
+
+     var stopflag = Number(can.style.top.slice(0 , can.style.top.indexOf("px")));
+            var stopflag1 = Number(can.style.left.slice(0 , can.style.left.indexOf("px")));
+            console.log(temptop + "<= temptop : "+ "templeft =>" + templeft + "zoom" + zoom);
+
+            if(zoom == 1 && stopflag > 0 || zoom == 1 && stopflag1 > 0)
+            {
+                can.style.top = 10;
+                can.style.left = 10;
+            }
+            if(zoom == 1 && stopflag < -2630)
+            {
+                can.style.top = -2400;
+            }
+            if(zoom == 1 && stopflag1 < -1250)
+            {
+                can.style.left = -1200;
+            }
+            if(zoom == 1.3 && stopflag < -3250)
+            {
+                can.style.top = -3200;
+            }
+            if(zoom == 1.3 && stopflag1 < -1850)
+            {
+                can.style.left = -1800;
+            }
+
+            if(zoom == 1.6 && stopflag < -3850)
+            {
+                can.style.top = -3800;
+            }
+            if(zoom == 1.6 && stopflag1 < -2450)
+            {
+                can.style.left = -2400;
+            }
+
+            if(zoom < 2 && zoom > 1.9 && stopflag < -4450)
+            {
+                can.style.top = -4400;
+            }
+            if(zoom < 2 && zoom > 1.9 && stopflag1 < -3050)
+            {
+                can.style.left = -3000;
+            }
+
+            if(zoom == 2.2 && stopflag < -5050)
+            {
+                can.style.top = -5000;
+            }
+            if(zoom == 2.2 && stopflag1 < -3650)
+            {
+                can.style.left = -3600;
+            }
+
+            if(zoom == 2.5 && stopflag < -5650)
+            {
+                can.style.top = -5600;
+            }
+            if(zoom == 2.5 && stopflag1 < -4250)
+            {
+                can.style.left = -4200;
+            }
+
+            if(zoom == 1.3 && stopflag > 701 || zoom == 1.3 && stopflag1 > 701)
+            {
+                can.style.top = 600;
+                can.style.left = 600;
+            }
+            if(zoom == 1.6 && stopflag > 1300 || zoom == 1.6 && stopflag1 > 1300)
+            {
+                can.style.top = 1200;
+                can.style.left = 1200;
+            }
+            if(zoom > 1.9 && zoom < 2 &&stopflag > 1900 || zoom < 1.9 && zoom < 2 && stopflag1 > 1900)
+            {
+                can.style.top = 1800;
+                can.style.left = 1800;
+            }
+            if(zoom == 2.2 && stopflag > 2500 || zoom == 2.2 && stopflag1 > 2500)
+            {
+                can.style.top = 2400;
+                can.style.left = 2400;
+            }
+            if(zoom == 2.5 && stopflag > 3100 || zoom == 2.5 && stopflag1 > 3100)
+            {
+                can.style.top = 3000;
+                can.style.left = 3000;
+            }
+}
+
+document.getElementById("zoomOut").addEventListener("click", function() {
+    if(zoom < 1.3)
+        return;
+  if (zoom > zoomStep) {
+    zoom -= zoomStep;
+    document.getElementById("can").style.transform = "scale(" + zoom + ")";
+  }
+  StopFlag();
+
+});
+
 
 </script>
+
+
