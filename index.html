@@ -9,6 +9,7 @@
 			background-repeat:   no-repeat;
 			background-position: center center; 
             transition: 100ms;
+            box-shadow: 20px 20px 20px #cccccc;
 		}
 		.img {
 			width: 1000px;
@@ -16,40 +17,54 @@
 			position: fixed;
 			top: 0px;
 			left: 0px;
-			z-index: 0.9;
 		}
 		.edit {
 			display: inline-block;
-			width: 200px;
-			height: 400px;
-			margin-left:800px;
+			width: 170px;
+			height: 210px;
+			margin-left:770px;
 			position: fixed;
-            margin-top: 10px;
+            margin-top: 70px;
+            background-color: rgb(191, 191, 191, 0.85);
+            padding: 5px;
+            border-radius: 10px;
+            padding-left: 20px;
+            padding-top: 20px;
+            box-shadow: 10px 10px 10px #aaaaaa;
+            display: none;
+            transition: 500ms;
 		}
 		label {
 			font-size: 20px;
-			color: yellow;
+			color: white;
+            text-shadow: 5px 5px 5px #888888;
 		}
 		input {
 			font-size: 15px;
-			padding: 10px;
-			border-radius: 10px;
+			padding: 5px;
+			border-radius: 5px;
 			width: 60px;
 			font-weight: bold;
 			padding-left: 10px;
             margin-left: 10px;
+            border: none;
+            box-shadow: 5px 5px 5px #888888;
+            color: gray;
+            margin-bottom: 3px;
 		}
 		.btn , .btn1 {
-			font-size: 20px;
-			padding: 10px;
+			font-size: 18px;
+			padding: 8px;
 			background-color: white;
-			border: 3px solid #eeeeee;
-			box-shadow: 2px 2px 2px #dddddd;
+            border: none;
+			box-shadow: 5px 5px 5px #888888;
 			border-radius: 10px;
             margin-left: 5px;
+            color: gray;
 		}
 		.btn:hover {
 			transform: scale3d(1.1, 1.1 ,1.1);
+            font-weight: bold;
 		}
 		.toggle {
             display: inline-block;
@@ -60,6 +75,9 @@
 		}
         #toggle {
             width: 75px;
+            font-size: 16px;
+            box-shadow: 3px 3px 3px #cccccc;
+            font-weight: normal;
         }
         .listBox {
             position: fixed;
@@ -67,37 +85,46 @@
             top: 90px;
             padding: 5px;
             padding-top: 10px;
-            width: 200px;
-            height: 280px;
+            width: 180px;
+            height: 260px;
             background-color: #ffffff;
             margin-left: 20px;
             display: none;
             padding-bottom: 10px;
-            box-shadow: 1px 1px 1px #777777;
+            box-shadow: 5px 5px 5px #888888;
+            transition: 500ms;
         }
     
         .viewlist {
             margin: auto;
             padding-top: 10px;
-            width: 90%;
+            width: 85%;
             height: 200px;
             overflow: auto;
             border-radius: 5px;
-            box-shadow: 1px 1px 1px #aaaaaa;
+            box-shadow: 4px 4px 4px #aaaaaa;
+
         }
     
         select {
-            width: 180px;
+            width: 152px;
             height: 200px;
+            box-shadow: 3px 3px 3px #aaaaaa;
         }
         #removepos {
             margin-left: 10px;
-            background-color: #eeeeee;
+            background-color: rgb(244, 244, 244);
+            font-size: 16px;
+            box-shadow: 3px 3px 3px #cccccc;
         }
         #Clear {
             position: fixed;
             top: 20px;
             left: 30px;
+            font-size: 16px;
+            font-weight: normal;
+            display: none;
+            text-shadow: 5px 5px 5px #999999;
         }        
         #zoomOut {
             padding-left: 15px;
@@ -107,22 +134,50 @@
             padding-left: 13px;
             padding-right: 13px;
         }
+        #c_y {
+            margin-left: 13px;
+        }
+        #g_x {
+            margin-left: 30px;
+        }
+        #g_y {
+            margin-left: 33px;
+        }
+        #start {
+            position: fixed;
+            top: 20px;
+            left: 850px;
+            font-size: 16px;
+            padding: 12px;
+            color: gray;
+            text-shadow: 3px 3px 3px #999999;
+            box-shadow: 5px 5px 5px #aaaaaa;
+            border: none;
+            border-radius: 35px;
+            background-color: #fefefe;
+            z-index: 2;
+            width: 50px;
+            color: gray;
+        }
+        #start:hover {
+            transform: scale3d(1.1, 1.1, 1.1);
+        }
 	</style>
 </head>
 
 <body onload="init()" id="body">
+<input class="start" id="start" value="<-" type="button"></input>
 <div class="can_div">
     <canvas id="can" class="map" width="4000" height="4000" style="position:absolute;">Below you can write:</canvas>
 </div>
-<div class="edit"> 
-	<label>Current X:</label><input class="input" id="c_x" /> <br /> <br />
-	<label>Current Y:</label><input class="input" id="c_y" /> <br /> <br /> <hr /> <br />
-	<label>Goal X:</label><input class="input" id="g_x" /> <br /> <br />
-	<label>Goal Y:</label><input class="input" id="g_y" /> <br /> <hr /><br />
+<div class="edit" id="edit"> 
+	<label class="c_x_l">Current X:</label><input class="input" id="c_x" /> <br /> 
+	<label class="c_y_l">Current Y:</label><input class="input" id="c_y" /> <br /> <hr /> 
+	<label class="g_x_l">Goal X:</label><input class="input" id="g_x" /> <br />
+	<label class="g_x_l">Goal Y:</label><input class="input" id="g_y" /> <br /> <hr />
 	<button class="btn" id="setPos"> Mark </button>
     <button class="btn" id="zoomIn"> + </button>
-    <button class="btn" id="zoomOut"> - </button> <br /><br />
-	
+    <button class="btn" id="zoomOut"> - </button> 
 </div>
 <button class="btn" id="Clear"> Select </button> <br />
 <div class="listBox" id="listBox">
@@ -139,6 +194,40 @@
 </html>
 
 <script type="text/javascript">
+
+    var start = document.getElementById("start");
+    var startflag = 0;
+    var hideflag = 0;
+    start.addEventListener("mouseover" , function() {
+        if(startflag == 0) {
+            start.value = "start";
+            start.setAttribute("style","border-radius:10px; width: 80px;");
+        }
+    });
+    start.addEventListener("mouseout" , function() {
+        if(startflag == 0) {
+            start.value = "<-";
+            start.setAttribute("style","border-radius:35px; width: 50px;");
+        }
+    });
+    start.addEventListener("mousedown" , function() {
+        if(hideflag == 0) {
+            document.getElementById("edit").setAttribute("style", "display: block;");
+            document.getElementById("Clear").setAttribute("style","display: block;");
+            start.setAttribute("style","border-radius:10px; width: 80px;");
+            start.value = "Hide";
+            hideflag = hideflag + 1;
+            startflag = startflag + 1;
+        }
+        else {
+            document.getElementById("edit").setAttribute("style", "display: none;");
+            document.getElementById("Clear").setAttribute("style","display: none;");
+            document.getElementById("listBox").setAttribute("style", "display: none;");
+            hideflag = hideflag - 1;
+            startflag = startflag - 1;
+        }
+    });
+
 	 var canvas, ctx, flag = false,
         prevX = 0,
         currX = 0,
@@ -397,7 +486,9 @@ listParent.addEventListener("click", function() {
         ctx.fillRect(save_x[i], save_y[i], 12, 12);
     }
     toggle.disabled = false;
+    toggle.setAttribute("style", "font-weight: bold;");
     removebtn.disabled = false;
+    removebtn.setAttribute("style", "font-weight: bold;");
     selected = [...listParent.options]
                     .filter(option => option.selected)
                     .map(option => option.value);
@@ -414,6 +505,7 @@ listParent.addEventListener("click", function() {
 })
     removepos.addEventListener("click" , function() {
         toggle.disabled = true;
+        toggle.setAttribute("style", "font-weight: normal;");
         var x_pos;
         var y_pos;
         for(var j = 0 ; j < selected.length ; j ++)
@@ -479,7 +571,7 @@ function drawList() {
     for (var j = 0 ; j < save_flag ; j += 1) {
         if(save_x[j + 1] == save_x[j] && save_y[j+1] == save_y[j])
             continue;
-        listParent.innerHTML += "<option style=\"font-size: 20px; padding-left: 20px;+\" id="+j+">"+ (Math.floor((save_x[j]-1992)/12)) +" , "+(Math.floor((save_y[j]-1992)/12))+"</option>";
+        listParent.innerHTML += "<option style=\"font-size: 16px; color: gray; text-shadow:3px 3px 3px #aaaaaa; padding-left: 20px;+\" id="+j+">"+ (Math.floor((save_x[j]-1992)/12)) +" , "+(Math.floor((save_y[j]-1992)/12))+"</option>";
     }
 } 
 
