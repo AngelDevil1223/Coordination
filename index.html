@@ -400,7 +400,10 @@ function findxy(res, e) {
 		currX = square_x[index_x] ;
 		currY = square_y[index_y] ; 
         document.getElementById("c_x").value = Math.floor(index_x/zoom) - 166;
-        document.getElementById("c_y").value = Math.floor(index_y/zoom) - 166;
+        if(Math.floor(index_y/zoom) - 166 > 0)
+            document.getElementById("c_y").value = 0 - (Math.floor(index_y/zoom) - 166);
+        else
+            document.getElementById("c_y").value = Math.abs(Math.floor(index_y/zoom) - 166);
     }
 }
 setPos.addEventListener("click" , function() {
@@ -420,6 +423,7 @@ setPos.addEventListener("click" , function() {
 })
 
 toggle.addEventListener("click" , function() {
+    var tempy = 0;
 	if(toggle.value == "Hide")
 	{
 		toggle.value = "Show";
@@ -428,7 +432,12 @@ toggle.addEventListener("click" , function() {
         for(var j = 0 ; j < selected.length ; j ++)
         {
             x_pos = Number(selected[j].slice(0, selected[j].indexOf(','))) * 12 + 1992;
-            y_pos = Number(selected[j].slice(selected[j].indexOf(',') + 1)) * 12 + 1992;
+            if(Number(selected[j].slice(selected[j].indexOf(',') + 1)) > 0)
+                tempy = 0 - Number(selected[j].slice(selected[j].indexOf(',') + 1));
+            else
+                tempy = Math.abs(Number(selected[j].slice(selected[j].indexOf(',') + 1)));
+
+            y_pos = tempy * 12 + 1992;
             ctx.clearRect(x_pos, y_pos , 12, 12);
         }
 
@@ -442,7 +451,11 @@ toggle.addEventListener("click" , function() {
         {
             ctx.fillStyle = "red";
             x_pos = Number(selected[j].slice(0, selected[j].indexOf(','))) * 12 + 1992;
-            y_pos = Number(selected[j].slice(selected[j].indexOf(',') + 1)) * 12 + 1992;
+            if(Number(selected[j].slice(selected[j].indexOf(',') + 1)) > 0)
+                tempy = 0 - Number(selected[j].slice(selected[j].indexOf(',') + 1));
+            else
+                tempy = Math.abs(Number(selected[j].slice(selected[j].indexOf(',') + 1)));
+            y_pos = tempy * 12 + 1992;
             ctx.fillRect(x_pos, y_pos , 12, 12);
         }
 	}
@@ -490,13 +503,19 @@ listParent.addEventListener("click", function() {
     selected = [...listParent.options]
                     .filter(option => option.selected)
                     .map(option => option.value);
-    
+    var tempy = 0;
     for(var j = 0 ; j < selected.length ; j ++)
     {
         ctx.beginPath();
         ctx.fillStyle = "yellow";
         var x_pos = Number(selected[j].slice(0, selected[j].indexOf(','))) * 12 + 1992;
-        var y_pos = Number(selected[j].slice(selected[j].indexOf(',') + 1)) * 12 + 1992;
+        console.log();
+        if(Number(selected[j].slice(selected[j].indexOf(',') + 1)) > 0)
+            tempy = 0 - Number(selected[j].slice(selected[j].indexOf(',') + 1));
+        else
+            tempy = Math.abs(Number(selected[j].slice(selected[j].indexOf(',') + 1)));
+        console.log(tempy);
+        var y_pos = tempy * 12 + 1992;
         ctx.fillRect(x_pos , y_pos , 12 , 12);
         // ctx.fillRect()
     }
@@ -506,10 +525,15 @@ listParent.addEventListener("click", function() {
         toggle.setAttribute("style", "font-weight: normal;");
         var x_pos;
         var y_pos;
+        var tempy = 0;
         for(var j = 0 ; j < selected.length ; j ++)
         {
             x_pos = Number(selected[j].slice(0, selected[j].indexOf(','))) * 12 + 1992;
-            y_pos = Number(selected[j].slice(selected[j].indexOf(',') + 1)) * 12 + 1992;
+            if(Number(selected[j].slice(selected[j].indexOf(',') + 1)) > 0)
+                tempy = 0 - Number(selected[j].slice(selected[j].indexOf(',') + 1));
+            else
+                tempy = Math.abs(Number(selected[j].slice(selected[j].indexOf(',') + 1)));
+            y_pos = tempy * 12 + 1992;
             ctx.clearRect(x_pos, y_pos , 12, 12);
         }
         var temp_flag = save_flag;
@@ -518,7 +542,11 @@ listParent.addEventListener("click", function() {
             for( var j = 0 ; j < selected.length ; j++)
             {
                 x_pos = Number(selected[j].slice(0, selected[j].indexOf(','))) * 12 + 1992;
-                y_pos = Number(selected[j].slice(selected[j].indexOf(',') + 1)) * 12 + 1992;
+                if(Number(selected[j].slice(selected[j].indexOf(',') + 1)) > 0)
+                    tempy = 0 - Number(selected[j].slice(selected[j].indexOf(',') + 1));
+                else
+                    tempy = Math.abs(Number(selected[j].slice(selected[j].indexOf(',') + 1)));
+                y_pos = tempy * 12 + 1992;
                 if ( save_x[i] === x_pos && save_y[i] === y_pos) { 
                     save_x.splice(i, 1); 
                     save_y.splice(i , 1);
@@ -566,12 +594,18 @@ listParent.addEventListener("click", function() {
 // dynamic option components in list css part
 function drawList() {
     listParent.innerHTML = "";
+    var tempy = 0;
     for (var j = 0 ; j < save_flag ; j += 1) {
         if(save_x[j + 1] == save_x[j] && save_y[j+1] == save_y[j])
             continue;
-
-        // You can customize the font in the list here.
-        listParent.innerHTML += "<option style=\"font-size: 16px; color: gray; text-shadow:3px 3px 3px #aaaaaa; padding-left: 20px;+\" id="+j+">"+ (Math.floor((save_x[j]-1992)/12)) +" , "+(Math.floor((save_y[j]-1992)/12))+"</option>";
+        else {
+            if((Math.floor((save_y[j]-1992)/12)) > 0)
+                tempy = 0 - (Math.floor((save_y[j]-1992)/12));
+            else
+                tempy = Math.abs((Math.floor((save_y[j]-1992)/12)));
+            // You can customize the font in the list here.
+                listParent.innerHTML += "<option style=\"font-size: 16px; color: gray; text-shadow:3px 3px 3px #aaaaaa; padding-left: 20px;+\" id="+j+">"+ (Math.floor((save_x[j]-1992)/12)) +" , "+tempy+"</option>";
+        }
     }
 } 
 
