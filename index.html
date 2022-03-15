@@ -8,14 +8,15 @@
             height: 1000px;
 			background-size:     cover;         
 			background-repeat:   no-repeat;
-			background-position: center center; 
+			background-position: cover;
+            background-size: 100% 100%; 
             transition: 100ms;
             box-shadow: 20px 20px 20px #cccccc;
 		}
 		/*Whole Frame background image css*/
         .img {
-			width: 1000px;
-			height: 1000px;
+			width: 100%;
+			height: 100%;
 			position: fixed;
 			top: 0px;
 			left: 0px;
@@ -25,7 +26,7 @@
 		.edit {
 			display: inline-block;
 			width: 170px;
-			height: 210px;
+			height: 255px;
 			margin-left:770px;
 			position: fixed;
             margin-top: 70px;
@@ -34,7 +35,6 @@
             border-radius: 10px;
             padding-left: 20px;
             padding-top: 20px;
-            box-shadow: 10px 10px 10px #aaaaaa;
             display: none;
             transition: 500ms;
 		}
@@ -173,6 +173,10 @@
         #start:hover {
             transform: scale3d(1.1, 1.1, 1.1);
         }
+
+        #ClearAll {
+            margin-top: 10px;
+        }
 	</style>
 </head>
 
@@ -188,7 +192,8 @@
 	<label class="g_x_l">Goal Y:</label><input class="input" id="g_y" /> <br /> <hr />
 	<button class="btn" id="setPos"> Mark </button>
     <button class="btn" id="zoomIn"> + </button>
-    <button class="btn" id="zoomOut"> - </button> 
+    <button class="btn" id="zoomOut"> - </button> <br />
+    <button class="btn" id="ClearAll"> ClearAll </button> 
 </div>
 <button class="btn" id="Clear"> Select </button> <br />
 <div class="listBox" id="listBox">
@@ -246,7 +251,7 @@ prevY = 0,
     currY = 0,
     dot_flag = false;
 
-var x = "grey",
+var x = "gray",
     y = 1;
 
 var body = document.getElementById('body');
@@ -276,23 +281,44 @@ function init() {
     w = canvas.width;
     h = canvas.height;
 
-    for(var i = 0 ; i < 4000 ; i += 12)
+
+    for(var i = 2000-6 ; i > 0 ; i = i - 12)
     {
     	ctx.beginPath();
     	ctx.lineWidth = 1;
     	ctx.moveTo(i, 0);
-    	ctx.lineTo(i, 4000)
+    	ctx.lineTo(i, 4000);
         ctx.strokeStyle = x;
-        ctx.lineWidth = y;
         ctx.stroke();
     }
 
-    for(var i = 0 ; i < 4000 ; i += 12)
+    for(var i = 2000+6 ; i < 4000 ; i = i + 12)
+    {
+        ctx.beginPath();
+        ctx.lineWidth = 1;
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i, 4000);
+        ctx.strokeStyle = x;
+        ctx.stroke();
+    }
+
+    for(var i = 2000-6 ; i > 0 ; i -= 12)
     {
     	ctx.beginPath();
     	ctx.lineWidth = 1;
     	ctx.moveTo(0, i);
     	ctx.lineTo(4000, i)
+        ctx.strokeStyle = x;
+        ctx.lineWidth = y;
+        ctx.stroke();
+    }
+
+    for(var i = 2000+6 ; i < 4000 ; i = i + 12)
+    {
+        ctx.beginPath();
+        ctx.lineWidth = 1;
+        ctx.moveTo(0, i);
+        ctx.lineTo(4000, i)
         ctx.strokeStyle = x;
         ctx.lineWidth = y;
         ctx.stroke();
@@ -384,7 +410,7 @@ function findxy(res, e) {
             ctx.beginPath();
             ctx.fillStyle = "red";
             // ctx.fillRect(currX , currY , 12, 12);
-            ctx.fillRect(currX , currY , 12,  12);
+            ctx.fillRect(currX , currY , 14,  14);
             ctx.closePath();
             dot_flag = false;
             drawList();
@@ -409,15 +435,20 @@ function findxy(res, e) {
 setPos.addEventListener("click" , function() {
 	var xx = document.getElementById("g_x").value;
 	var yy = document.getElementById("g_y").value;
+    tempy = 0;
+    if(yy > 0)
+        tempy = 0 - yy;
+    else
+        tempy = Math.abs(yy);
 	ctx.beginPath();
     ctx.fillStyle = "red";
     xx = Number(xx) + 166;
-    yy = Number(yy) + 166;
+    yy = Number(tempy) + 166;
     save_x[save_flag] = xx;
     save_x[save_flag] = square_x[xx];
     save_y[save_flag] = square_y[yy];
     save_flag = save_flag + 1;
-    ctx.fillRect(square_x[xx], square_y[yy], 12, 12);
+    ctx.fillRect(square_x[xx], square_y[yy], 14, 14);
     listParent.innerHTML = "";
     drawList();
 })
@@ -438,7 +469,7 @@ toggle.addEventListener("click" , function() {
                 tempy = Math.abs(Number(selected[j].slice(selected[j].indexOf(',') + 1)));
 
             y_pos = tempy * 12 + 1992;
-            ctx.clearRect(x_pos, y_pos , 12, 12);
+            ctx.clearRect(x_pos, y_pos , 14, 14);
         }
 
 	}
@@ -456,7 +487,7 @@ toggle.addEventListener("click" , function() {
             else
                 tempy = Math.abs(Number(selected[j].slice(selected[j].indexOf(',') + 1)));
             y_pos = tempy * 12 + 1992;
-            ctx.fillRect(x_pos, y_pos , 12, 12);
+            ctx.fillRect(x_pos, y_pos , 14, 14);
         }
 	}
 })
@@ -494,7 +525,7 @@ listParent.addEventListener("click", function() {
     for(var i = 0 ; i < save_flag ; i ++)
     {
         ctx.fillStyle = "red";
-        ctx.fillRect(save_x[i], save_y[i], 12, 12);
+        ctx.fillRect(save_x[i], save_y[i], 14, 14);
     }
     toggle.disabled = false;
     toggle.setAttribute("style", "font-weight: bold;");
@@ -516,7 +547,7 @@ listParent.addEventListener("click", function() {
             tempy = Math.abs(Number(selected[j].slice(selected[j].indexOf(',') + 1)));
         console.log(tempy);
         var y_pos = tempy * 12 + 1992;
-        ctx.fillRect(x_pos , y_pos , 12 , 12);
+        ctx.fillRect(x_pos , y_pos , 14 , 14);
         // ctx.fillRect()
     }
 })
@@ -534,7 +565,7 @@ listParent.addEventListener("click", function() {
             else
                 tempy = Math.abs(Number(selected[j].slice(selected[j].indexOf(',') + 1)));
             y_pos = tempy * 12 + 1992;
-            ctx.clearRect(x_pos, y_pos , 12, 12);
+            ctx.clearRect(x_pos, y_pos , 14, 14);
         }
         var temp_flag = save_flag;
 
@@ -565,7 +596,7 @@ listParent.addEventListener("click", function() {
         for(var k = 0 ; k < save_flag ; k ++)
         {
             ctx.fillStyle = "red";
-            ctx.fillRect(save_x[k] , save_y[k] , 12 , 12);
+            ctx.fillRect(save_x[k] , save_y[k] , 14 , 14);
         }
         console.log("save_flag:" + save_flag + "save_x: " + save_x + "save_y :" + save_y);
     });
@@ -579,7 +610,7 @@ listParent.addEventListener("click", function() {
             for(var i = 0 ; i < save_flag ; i ++)
             {
                 ctx.fillStyle = "red";
-                ctx.fillRect(save_x[i], save_y[i], 12, 12);
+                ctx.fillRect(save_x[i], save_y[i], 14, 14);
             }
             clearflag = !clearflag;    
         }
@@ -590,7 +621,15 @@ listParent.addEventListener("click", function() {
         }
         drawList();
     })
-
+var ClearAll = document.getElementById("ClearAll");
+ClearAll.addEventListener("click" , function() {
+    save_x.length = 0;
+    save_y.length = 0;
+    save_flag = 0;
+    drawList();
+    ctx.clearRect(0, 0, 4000, 4000);
+    init();
+});
 // dynamic option components in list css part
 function drawList() {
     listParent.innerHTML = "";
@@ -614,7 +653,7 @@ var zoom = 1;
 var zoomStep = 0.3;
 
 document.getElementById("zoomIn").addEventListener("click", function() {
-    if(zoom > 2.4)
+    if(zoom > 5)
     {
         return;
     }
